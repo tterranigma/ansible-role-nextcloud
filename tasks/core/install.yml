@@ -15,25 +15,6 @@
     path: "{{ nextcloud_installation_dir }}/updater/updater.phar"
   register: _result
 
-- name: Check if update is available
-  command: php updater/updater.phar
-  args:
-    chdir: "{{ nextcloud_installation_dir }}"
-  become: true
-  become_user: "{{ nextcloud_file_owner }}"
-  register: _result
-  changed_when: false
-  failed_when:
-    - _result is failed
-    # The updater will automatically try to install any updates if the shell is
-    # not interactive (as is the case with here). In that case, it means that
-    # Nextcloud has already been installed and an update was found. Assuming
-    # that Nextcloud was installed with this role, .htaccess will no be
-    # writtable. This will cause the updater to fail. But this is a failure we
-    # can expect.
-    - _result.stdout is not search('The following places can not be written to')
-  when: _result.stat.exists | bool
-
 - name: Download nextcloud
   unarchive:
     src: "{{ nextcloud_download_url }}"
@@ -42,9 +23,7 @@
     owner: "{{ nextcloud_file_owner }}"
     group: "{{ nextcloud_file_owner }}"
   register: _result
-  when: >-
-    _result is skipped
-    or _result.stdout is not search("No update available")
+  when: not _result.stat.exists
 
 - block:
     # When extracting the downloaded nextcloud archive, the files are placed
