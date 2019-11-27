@@ -35,7 +35,7 @@
   when: _result.stdout | regex_search('^Nextcloud .* is available')
 
 - name: Check if upgrade is needed
-  command: ./occ status
+  command: php occ status
   args:
     chdir: "{{ nextcloud_installation_dir }}"
   register: nextcloud_status
@@ -44,7 +44,7 @@
   become_user: "{{ nextcloud_file_owner }}"
 
 - name: Upgrade Nextcloud installation
-  command: ./occ upgrade
+  command: php occ upgrade
   args:
     chdir: "{{ nextcloud_installation_dir }}"
   become: true

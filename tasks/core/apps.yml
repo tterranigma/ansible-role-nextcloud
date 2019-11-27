@@ -2,7 +2,7 @@
 
 # Read all apps shipped by Nextcloud itself
 - name: Read shipped apps
-  command: ./occ app:list --shipped=true --no-warnings --output=json
+  command: php occ app:list --shipped=true --no-warnings --output=json
   args:
     chdir: "{{ nextcloud_installation_dir }}"
   become: true
@@ -16,7 +16,7 @@
 
 # Read all external apps which have been installed by in addition
 - name: Read installed external apps
-  command: ./occ app:list --shipped=false --no-warnings --output=json
+  command: php occ app:list --shipped=false --no-warnings --output=json
   args:
     chdir: "{{ nextcloud_installation_dir }}"
   become: true
@@ -84,7 +84,7 @@
 
 # Update list of available apps after installation and removal:
 - name: Re-read installed external apps
-  command: ./occ app:list --shipped=false --no-warnings --output=json
+  command: php occ app:list --shipped=false --no-warnings --output=json
   args:
     chdir: "{{ nextcloud_installation_dir }}"
   become: true
@@ -113,7 +113,7 @@
 # - are not yet enabled and
 # - have their state set to "enabled"
 - name: Enable apps
-  command: ./occ app:enable "{{ item.name }}"
+  command: php occ app:enable "{{ item.name }}"
   args:
     chdir: "{{ nextcloud_installation_dir }}"
   become: true
@@ -128,7 +128,7 @@
 # - are not yet disabled and
 # - have their state set to "disabled"
 - name: Disable apps
-  command: ./occ app:disable "{{ item.name }}"
+  command: php occ app:disable "{{ item.name }}"
   args:
     chdir: "{{ nextcloud_installation_dir }}"
   become: true
