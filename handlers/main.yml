@@ -25,7 +25,7 @@
     - name: Set Nextcloud file permissions
       file:
         path: "{{ nextcloud_installation_dir }}"
-        mode: u=rwX,g=rX,o=0
+        mode: u=rwX,g=rX,o-rwx
         owner: "{{ nextcloud_file_owner }}"
         group: "{{ nextcloud_file_owner }}"
         recurse: true
