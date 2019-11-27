@@ -19,7 +19,7 @@
     recurse: true
   when: _result.stdout | regex_search('^Nextcloud .* is available')
   # Make sure to correctly set file permissions after the installation
-  notify: nextcloud set secure file permissions
+  notify: nextcloud set file permissions
 
 - name: Update Nextcloud installation
   command: php updater/updater.phar --no-interaction

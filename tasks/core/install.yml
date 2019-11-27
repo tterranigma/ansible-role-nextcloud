@@ -64,7 +64,7 @@
         creates: "{{ nextcloud_installation_dir }}/config/config.php"
       become: true
       become_user: "{{ nextcloud_file_owner }}"
-      notify: nextcloud set secure file permissions
+      notify: nextcloud set file permissions
 
     - name: Make occ executable
       file:
