@@ -20,16 +20,6 @@
         mode: g-w
       listen: nextcloud update htaccess
 
-- name: Set permissions on downloaded apps
-  file:
-    path: "{{ nextcloud_installation_dir }}/apps/"
-    mode: u=rwX,g=rX,o=rX
-    owner: "{{ nextcloud_file_owner }}"
-    group: "{{ nextcloud_file_owner }}"
-    state: directory
-    recurse: true
-  listen: set app files permissions
-
 - name: Set file permissions on Nextcloud files
   block:
     - name: Set Nextcloud file permissions

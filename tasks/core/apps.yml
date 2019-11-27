@@ -81,6 +81,7 @@
     - item.name not in (nextcloud_installed_apps.enabled
       | combine(nextcloud_installed_apps.disabled))
     - item.state | default('enabled') != 'absent'
+  notify: nextcloud set file permissions
 
 # Update list of available apps after installation and removal:
 - name: Re-read installed external apps
@@ -108,6 +109,7 @@
   register: result
   failed_when: result.stdout is search('not installed') or result is failed
   changed_when: result.stdout is search('updated') and result is not failed
+  notify: nextcloud set file permissions
 
 # Enable all apps from the configured list which
 # - are not yet enabled and
