@@ -36,26 +36,30 @@
       set_fact:
         nextcloud_extra_files: >-
           [
-            {%- for result in nextcloud_integrity_apps.results -%}
-              {%- set appname=(result.cmd[3]) -%}
-              {%- set files=(result.stdout_lines[-1] | from_json) -%}
-              {%- if files is mapping and 'EXTRA_FILE' in files -%}
-                "{{ []
-                  | zip_longest(
-                    files['EXTRA_FILE'].keys(),
-                    fillvalue=("apps/" ~ appname)
+            {%- if nextcloud_check_integrity_apps -%}
+              {%- for result in nextcloud_integrity_apps.results -%}
+                {%- set appname=(result.cmd[3]) -%}
+                {%- set files=(result.stdout_lines[-1] | from_json) -%}
+                {%- if files is mapping and 'EXTRA_FILE' in files -%}
+                  "{{ []
+                    | zip_longest(
+                      files['EXTRA_FILE'].keys(),
+                      fillvalue=("apps/" ~ appname)
+                    )
+                    | map('join', '/')
+                    | list
+                    | join('","') }}"
+                    ,
+                {%- endif -%}
+              {%- endfor -%}
+            {%- endif -%}
+            {%- if nextcloud_check_integrity_apps -%}
+              {%- set files=(
+                    nextcloud_integrity_core.stdout_lines[-1]
+                    | from_json
                   )
-                  | map('join', '/')
-                  | list
-                  | join('","') }}"
-                  ,
-              {%- endif -%}
-            {%- endfor -%}
-            {%- set files=(
-                  nextcloud_integrity_core.stdout_lines[-1]
-                  | from_json
-                )
-            -%}
+              -%}
+            {%- endif -%}
             {%- if files is mapping and 'EXTRA_FILE' in files -%}
               '{{ files["EXTRA_FILE"].keys() | join("','") }}'
             {%- endif -%}
