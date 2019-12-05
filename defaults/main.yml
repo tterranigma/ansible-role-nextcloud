@@ -72,6 +72,15 @@ nextcloud_urls:
 # You would normally need only one. If you specify more than one, the first one
 # will be as the "main" one, for pretty urls, etc.
 
+nextcloud_check_integrity_core: true
+# Setting to choose whether to run the code integrity check on the Nextcloud
+# core files.
+
+nextcloud_check_integrity_apps: true
+# Setting to choose whether to run the code integrity check for each of the
+# installed apps. beware that many apps don't ship a code signature and this
+# check might result in an error in the Nextcloud log.
+
 nextcloud_remove_unknown_apps: false
 # Setting to choose whether to remove or keep external apps which have not been
 # installed through this role, but manually or via the Nextcloud admin interface

@@ -11,6 +11,7 @@
       become_user: "{{ nextcloud_file_owner }}"
       failed_when: false
       changed_when: false
+      when: nextcloud_check_integrity_core
 
     - name: Run integrity check for apps
       command: "./occ integrity:check-app {{ item }} --output=json"
@@ -29,6 +30,7 @@
       failed_when: false
       become: true
       become_user: "{{ nextcloud_file_owner }}"
+      when: nextcloud_check_integrity_apps
 
     - name: Extract extra files that need deletion
       set_fact:
@@ -58,6 +60,7 @@
               '{{ files["EXTRA_FILE"].keys() | join("','") }}'
             {%- endif -%}
           ]
+  when: nextcloud_check_integrity_core or nextcloud_check_integrity_apps
 
 - name: Delete extra files
   block:
@@ -77,6 +80,7 @@
       become_user: "{{ nextcloud_file_owner }}"
       failed_when: false
       changed_when: false
+      when: nextcloud_check_integrity_core
 
     - name: Re-run integrity check for apps to update integrity results
       command: "./occ integrity:check-app {{ item }} --output=json"
@@ -94,4 +98,5 @@
       failed_when: false
       become: true
       become_user: "{{ nextcloud_file_owner }}"
+      when: nextcloud_check_integrity_apps
   when: nextcloud_extra_files | length > 0
