@@ -11,6 +11,7 @@
       become_user: "{{ nextcloud_file_owner }}"
       failed_when: false
       changed_when: false
+      when: nextcloud_check_integrity_core
 
     - name: Run integrity check for apps
       command: "./occ integrity:check-app {{ item }} --output=json"
@@ -29,35 +30,41 @@
       failed_when: false
       become: true
       become_user: "{{ nextcloud_file_owner }}"
+      when: nextcloud_check_integrity_apps
 
     - name: Extract extra files that need deletion
       set_fact:
         nextcloud_extra_files: >-
           [
-            {%- for result in nextcloud_integrity_apps.results -%}
-              {%- set appname=(result.cmd[3]) -%}
-              {%- set files=(result.stdout_lines[-1] | from_json) -%}
-              {%- if files is mapping and 'EXTRA_FILE' in files -%}
-                "{{ []
-                  | zip_longest(
-                    files['EXTRA_FILE'].keys(),
-                    fillvalue=("apps/" ~ appname)
+            {%- if nextcloud_check_integrity_apps -%}
+              {%- for result in nextcloud_integrity_apps.results -%}
+                {%- set appname=(result.cmd[3]) -%}
+                {%- set files=(result.stdout_lines[-1] | from_json) -%}
+                {%- if files is mapping and 'EXTRA_FILE' in files -%}
+                  "{{ []
+                    | zip_longest(
+                      files['EXTRA_FILE'].keys(),
+                      fillvalue=("apps/" ~ appname)
+                    )
+                    | map('join', '/')
+                    | list
+                    | join('","') }}"
+                    ,
+                {%- endif -%}
+              {%- endfor -%}
+            {%- endif -%}
+            {%- if nextcloud_check_integrity_apps -%}
+              {%- set files=(
+                    nextcloud_integrity_core.stdout_lines[-1]
+                    | from_json
                   )
-                  | map('join', '/')
-                  | list
-                  | join('","') }}"
-                  ,
-              {%- endif -%}
-            {%- endfor -%}
-            {%- set files=(
-                  nextcloud_integrity_core.stdout_lines[-1]
-                  | from_json
-                )
-            -%}
+              -%}
+            {%- endif -%}
             {%- if files is mapping and 'EXTRA_FILE' in files -%}
               '{{ files["EXTRA_FILE"].keys() | join("','") }}'
             {%- endif -%}
           ]
+  when: nextcloud_check_integrity_core or nextcloud_check_integrity_apps
 
 - name: Delete extra files
   block:
@@ -77,6 +84,7 @@
       become_user: "{{ nextcloud_file_owner }}"
       failed_when: false
       changed_when: false
+      when: nextcloud_check_integrity_core
 
     - name: Re-run integrity check for apps to update integrity results
       command: "./occ integrity:check-app {{ item }} --output=json"
@@ -94,4 +102,5 @@
       failed_when: false
       become: true
       become_user: "{{ nextcloud_file_owner }}"
+      when: nextcloud_check_integrity_apps
   when: nextcloud_extra_files | length > 0
