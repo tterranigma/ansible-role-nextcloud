@@ -1,14 +1,23 @@
 ---
 
+# These tasks install Nextcloud if it is not installed on the system already.
+# They should run only once.
+
 - name: Install unzip
   package:
     name: unzip
     state: present
   when: download_file_type == '.zip'
 
-- name: Install imagemagick
+- name: Install dependencies
   package:
-    name: imagemagick
+    name: "{{ package }}"
+  loop: "{{ packages }}"
+  loop_control:
+    loop_var: package
+  vars:
+    packages:
+      - imagemagick
 
 - name: Check if nextcloud is already installed
   stat:
@@ -25,7 +34,8 @@
   register: _result
   when: not _result.stat.exists
 
-- block:
+- name: Install nextcloud
+  block:
     # When extracting the downloaded nextcloud archive, the files are placed
     # under a nextcloud folder. Here, we rename this folder if the user has
     # specified a different folder.
@@ -48,7 +58,8 @@
 
     - name: Install nextcloud
       command: >-
-        php occ maintenance:install --no-interaction
+        php occ maintenance:install
+          --no-interaction
           --database "{{ nextcloud_database.backend }}"
           --database-name "{{ nextcloud_database.name }}"
           --database-user "{{ nextcloud_database.user }}"

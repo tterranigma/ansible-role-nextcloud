@@ -73,6 +73,4 @@
   become: true
   become_user: "{{ nextcloud_file_owner }}"
   when: item.0.value != item.1.stdout
-  with_together:
-    - "{{ user_settings }}"
-    - "{{ user_config_values.results }}"
+  loop: "{{ user_settings | zip(user_config_values.results) | list }}"

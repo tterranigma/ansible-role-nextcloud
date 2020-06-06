@@ -35,7 +35,7 @@
         nextcloud_extra_files: >-
           [
             {%- for result in nextcloud_integrity_apps.results -%}
-              {%- set appname=(result.cmd[3]) -%}
+              {%- set appname=result.item -%}
               {%- set files=(result.stdout_lines[-1] | from_json) -%}
               {%- if files is mapping and 'EXTRA_FILE' in files -%}
                 "{{ []
